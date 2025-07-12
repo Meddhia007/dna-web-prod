@@ -1,0 +1,154 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2, h3 {
+    color: #0056b3;
+}
+
+nav {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+nav button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin-right: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+nav button:hover {
+    background-color: #0056b3;
+}
+
+#content-management {
+    margin-top: 30px;
+}
+
+#add-item-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+#add-item-btn:hover {
+    background-color: #218838;
+}
+
+#item-form {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+#item-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#item-form input[type="text"],
+#item-form textarea {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#item-form button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+#save-item-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+#save-item-btn:hover {
+    background-color: #0056b3;
+}
+
+#cancel-edit-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+#cancel-edit-btn:hover {
+    background-color: #5a6268;
+}
+
+.hidden {
+    display: none;
+}
+
+.item-card {
+    background-color: #f0f8ff;
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item-card h4 {
+    margin: 0;
+    color: #333;
+}
+
+.item-card p {
+    margin: 5px 0;
+    color: #555;
+}
+
+.item-card button {
+    background-color: #ffc107;
+    color: #333;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.item-card button.delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.item-card button:hover {
+    opacity: 0.9;
+}
