@@ -107,79 +107,121 @@
     <script>
         const teamForm = document.getElementById('teamForm');
         const teamContainer = document.getElementById('teamContainer');
+        const API_URL = 'https://s5bn8dfyde.execute-api.eu-north-1.amazonaws.com/dev/team';
 
-        let teamMembers = [];
+        let teamMembers = []; // To store members fetched from API
 
-        // Load team members from local storage
-        function loadTeamMembers() {
-            const storedTeamMembers = localStorage.getItem('teamMembers');
-            if (storedTeamMembers) {
-                teamMembers = JSON.parse(storedTeamMembers);
-                renderTeamMembers();
+        // Function to fetch and render team members
+        async function renderTeamMembers() {
+            teamContainer.innerHTML = '';
+            try {
+                const response = await fetch(API_URL);
+                const members = await response.json();
+                teamMembers = members; // Update local array with fetched members
+                members.forEach(member => {
+                    const teamItem = document.createElement('div');
+                    teamItem.classList.add('team-item');
+                    teamItem.innerHTML = `
+                        <h3>${member.name}</h3>
+                        <p><strong>Role:</strong> ${member.role}</p>
+                        <p>${member.description}</p>
+                        <div class="actions">
+                            <button onclick="editTeamMember('${member.id}')">Edit</button>
+                            <button onclick="deleteTeamMember('${member.id}')">Delete</button>
+                        </div>
+                    `;
+                    teamContainer.appendChild(teamItem);
+                });
+            } catch (error) {
+                console.error('Error fetching team members:', error);
+                teamContainer.innerHTML = '<p>Error loading team members.</p>';
             }
         }
 
-        // Save team members to local storage
-        function saveTeamMembers() {
-            localStorage.setItem('teamMembers', JSON.stringify(teamMembers));
-        }
-
-        // Render team members to the DOM
-        function renderTeamMembers() {
-            teamContainer.innerHTML = '';
-            teamMembers.forEach((member, index) => {
-                const teamItem = document.createElement('div');
-                teamItem.classList.add('team-item');
-                teamItem.innerHTML = `
-                    <h3>${member.name}</h3>
-                    <p><strong>Role:</strong> ${member.role}</p>
-                    <p>${member.description}</p>
-                    <div class="actions">
-                        <button onclick="editTeamMember(${index})">Edit</button>
-                        <button onclick="deleteTeamMember(${index})">Delete</button>
-                    </div>
-                `;
-                teamContainer.appendChild(teamItem);
-            });
-        }
-
         // Add a new team member
-        teamForm.addEventListener('submit', (e) => {
+        teamForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('memberName').value;
             const role = document.getElementById('memberRole').value;
             const description = document.getElementById('memberDescription').value;
-            teamMembers.push({ name, role, description });
-            saveTeamMembers();
-            renderTeamMembers();
-            teamForm.reset();
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, role, description }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message);
+                    teamForm.reset();
+                    renderTeamMembers(); // Re-render members after adding
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error adding team member:', error);
+                alert('Failed to add team member.');
+            }
         });
 
         // Edit a team member
-        function editTeamMember(index) {
-            const newName = prompt('Enter new member name:', teamMembers[index].name);
-            const newRole = prompt('Enter new member role:', teamMembers[index].role);
-            const newDescription = prompt('Enter new member description:', teamMembers[index].description);
+        async function editTeamMember(id) {
+            const memberToEdit = teamMembers.find(member => member.id === id);
+            if (!memberToEdit) return;
+
+            const newName = prompt('Enter new member name:', memberToEdit.name);
+            const newRole = prompt('Enter new member role:', memberToEdit.role);
+            const newDescription = prompt('Enter new member description:', memberToEdit.description);
+
             if (newName !== null && newRole !== null && newDescription !== null) {
-                teamMembers[index].name = newName;
-                teamMembers[index].role = newRole;
-                teamMembers[index].description = newDescription;
-                saveTeamMembers();
-                renderTeamMembers();
+                try {
+                    const response = await fetch(`${API_URL}/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ name: newName, role: newRole, description: newDescription }),
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        alert(data.message);
+                        renderTeamMembers();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error updating team member:', error);
+                    alert('Failed to update team member.');
+                }
             }
         }
 
         // Delete a team member
-        function deleteTeamMember(index) {
+        async function deleteTeamMember(id) {
             if (confirm('Are you sure you want to delete this team member?')) {
-                teamMembers.splice(index, 1);
-                saveTeamMembers();
-                renderTeamMembers();
+                try {
+                    const response = await fetch(`${API_URL}/${id}`, {
+                        method: 'DELETE',
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        alert(data.message);
+                        renderTeamMembers();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error deleting team member:', error);
+                    alert('Failed to delete team member.');
+                }
             }
         }
 
         // Initial load
-        loadTeamMembers();
+        renderTeamMembers();
     </script>
 </body>
 </html>

@@ -103,75 +103,113 @@
     <script>
         const serviceForm = document.getElementById('serviceForm');
         const servicesContainer = document.getElementById('servicesContainer');
+        const API_URL = 'https://s5bn8dfyde.execute-api.eu-north-1.amazonaws.com/dev/services';
 
-        let services = [];
-
-        // Load services from local storage
-        function loadServices() {
-            const storedServices = localStorage.getItem('services');
-            if (storedServices) {
-                services = JSON.parse(storedServices);
-                renderServices();
-            }
-        }
-
-        // Save services to local storage
-        function saveServices() {
-            localStorage.setItem('services', JSON.stringify(services));
-        }
-
-        // Render services to the DOM
-        function renderServices() {
+        // Function to fetch and render services
+        async function renderServices() {
             servicesContainer.innerHTML = '';
-            services.forEach((service, index) => {
-                const serviceItem = document.createElement('div');
-                serviceItem.classList.add('service-item');
-                serviceItem.innerHTML = `
-                    <h3>${service.name}</h3>
-                    <p>${service.description}</p>
-                    <div class="actions">
-                        <button onclick="editService(${index})">Edit</button>
-                        <button onclick="deleteService(${index})">Delete</button>
-                    </div>
-                `;
-                servicesContainer.appendChild(serviceItem);
-            });
+            try {
+                const response = await fetch(API_URL);
+                const services = await response.json();
+                services.forEach(service => {
+                    const serviceItem = document.createElement('div');
+                    serviceItem.classList.add('service-item');
+                    serviceItem.innerHTML = `
+                        <h3>${service.name}</h3>
+                        <p>${service.description}</p>
+                        <div class="actions">
+                            <button onclick="editService('${service.id}')">Edit</button>
+                            <button onclick="deleteService('${service.id}')">Delete</button>
+                        </div>
+                    `;
+                    servicesContainer.appendChild(serviceItem);
+                });
+            } catch (error) {
+                console.error('Error fetching services:', error);
+                servicesContainer.innerHTML = '<p>Error loading services.</p>';
+            }
         }
 
         // Add a new service
-        serviceForm.addEventListener('submit', (e) => {
+        serviceForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('serviceName').value;
             const description = document.getElementById('serviceDescription').value;
-            services.push({ name, description });
-            saveServices();
-            renderServices();
-            serviceForm.reset();
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, description }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message);
+                    serviceForm.reset();
+                    renderServices(); // Re-render services after adding
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error adding service:', error);
+                alert('Failed to add service.');
+            }
         });
 
-        // Edit a service
-        function editService(index) {
-            const newName = prompt('Enter new service name:', services[index].name);
-            const newDescription = prompt('Enter new service description:', services[index].description);
+        async function editService(id) {
+            const serviceToEdit = services.find(service => service.id === id);
+            if (!serviceToEdit) return;
+
+            const newName = prompt('Enter new service name:', serviceToEdit.name);
+            const newDescription = prompt('Enter new service description:', serviceToEdit.description);
+
             if (newName !== null && newDescription !== null) {
-                services[index].name = newName;
-                services[index].description = newDescription;
-                saveServices();
-                renderServices();
+                try {
+                    const response = await fetch(`${API_URL}/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ name: newName, description: newDescription }),
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        alert(data.message);
+                        renderServices();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error updating service:', error);
+                    alert('Failed to update service.');
+                }
             }
         }
 
-        // Delete a service
-        function deleteService(index) {
+        async function deleteService(id) {
             if (confirm('Are you sure you want to delete this service?')) {
-                services.splice(index, 1);
-                saveServices();
-                renderServices();
+                try {
+                    const response = await fetch(`${API_URL}/${id}`, {
+                        method: 'DELETE',
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        alert(data.message);
+                        renderServices();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error deleting service:', error);
+                    alert('Failed to delete service.');
+                }
             }
         }
 
-        // Initial load
-        loadServices();
+        // Initial load of services
+        renderServices();
     </script>
 </body>
 </html>

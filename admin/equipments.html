@@ -103,75 +103,118 @@
     <script>
         const equipmentForm = document.getElementById('equipmentForm');
         const equipmentsContainer = document.getElementById('equipmentsContainer');
+        const API_URL = 'https://s5bn8dfyde.execute-api.eu-north-1.amazonaws.com/dev/equipments';
 
-        let equipments = [];
+        let equipments = []; // To store items fetched from API
 
-        // Load equipments from local storage
-        function loadEquipments() {
-            const storedEquipments = localStorage.getItem('equipments');
-            if (storedEquipments) {
-                equipments = JSON.parse(storedEquipments);
-                renderEquipments();
+        // Function to fetch and render equipments
+        async function renderEquipments() {
+            equipmentsContainer.innerHTML = '';
+            try {
+                const response = await fetch(API_URL);
+                const items = await response.json();
+                equipments = items; // Update local array with fetched items
+                items.forEach(item => {
+                    const equipmentItem = document.createElement('div');
+                    equipmentItem.classList.add('equipment-item');
+                    equipmentItem.innerHTML = `
+                        <h3>${item.name}</h3>
+                        <p>${item.description}</p>
+                        <div class="actions">
+                            <button onclick="editEquipment('${item.id}')">Edit</button>
+                            <button onclick="deleteEquipment('${item.id}')">Delete</button>
+                        </div>
+                    `;
+                    equipmentsContainer.appendChild(equipmentItem);
+                });
+            } catch (error) {
+                console.error('Error fetching equipments:', error);
+                equipmentsContainer.innerHTML = '<p>Error loading equipments.</p>';
             }
         }
 
-        // Save equipments to local storage
-        function saveEquipments() {
-            localStorage.setItem('equipments', JSON.stringify(equipments));
-        }
-
-        // Render equipments to the DOM
-        function renderEquipments() {
-            equipmentsContainer.innerHTML = '';
-            equipments.forEach((equipment, index) => {
-                const equipmentItem = document.createElement('div');
-                equipmentItem.classList.add('equipment-item');
-                equipmentItem.innerHTML = `
-                    <h3>${equipment.name}</h3>
-                    <p>${equipment.description}</p>
-                    <div class="actions">
-                        <button onclick="editEquipment(${index})">Edit</button>
-                        <button onclick="deleteEquipment(${index})">Delete</button>
-                    </div>
-                `;
-                equipmentsContainer.appendChild(equipmentItem);
-            });
-        }
-
         // Add a new equipment
-        equipmentForm.addEventListener('submit', (e) => {
+        equipmentForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('equipmentName').value;
             const description = document.getElementById('equipmentDescription').value;
-            equipments.push({ name, description });
-            saveEquipments();
-            renderEquipments();
-            equipmentForm.reset();
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, description }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message);
+                    equipmentForm.reset();
+                    renderEquipments(); // Re-render items after adding
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error adding equipment:', error);
+                alert('Failed to add equipment.');
+            }
         });
 
         // Edit an equipment
-        function editEquipment(index) {
-            const newName = prompt('Enter new equipment name:', equipments[index].name);
-            const newDescription = prompt('Enter new equipment description:', equipments[index].description);
+        async function editEquipment(id) {
+            const itemToEdit = equipments.find(item => item.id === id);
+            if (!itemToEdit) return;
+
+            const newName = prompt('Enter new equipment name:', itemToEdit.name);
+            const newDescription = prompt('Enter new equipment description:', itemToEdit.description);
+
             if (newName !== null && newDescription !== null) {
-                equipments[index].name = newName;
-                equipments[index].description = newDescription;
-                saveEquipments();
-                renderEquipments();
+                try {
+                    const response = await fetch(`${API_URL}/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ name: newName, description: newDescription }),
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        alert(data.message);
+                        renderEquipments();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error updating equipment:', error);
+                    alert('Failed to update equipment.');
+                }
             }
         }
 
         // Delete an equipment
-        function deleteEquipment(index) {
+        async function deleteEquipment(id) {
             if (confirm('Are you sure you want to delete this equipment?')) {
-                equipments.splice(index, 1);
-                saveEquipments();
-                renderEquipments();
+                try {
+                    const response = await fetch(`${API_URL}/${id}`, {
+                        method: 'DELETE',
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                        alert(data.message);
+                        renderEquipments();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error deleting equipment:', error);
+                    alert('Failed to delete equipment.');
+                }
             }
         }
 
         // Initial load
-        loadEquipments();
+        renderEquipments();
     </script>
 </body>
 </html>

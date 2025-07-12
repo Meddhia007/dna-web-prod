@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-dnaweb-dev-84653-authRole",
+      "UnauthRoleArn": "arn:aws:iam::273528188990:role/amplify-dnaweb-dev-84653-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::273528188990:role/amplify-dnaweb-dev-84653-authRole",
+      "Region": "eu-north-1",
+      "DeploymentBucketName": "amplify-dnaweb-dev-84653-deployment",
+      "UnauthRoleName": "amplify-dnaweb-dev-84653-unauthRole",
+      "StackName": "amplify-dnaweb-dev-84653",
+      "StackId": "arn:aws:cloudformation:eu-north-1:273528188990:stack/amplify-dnaweb-dev-84653/52d3f700-5f54-11f0-8f36-06f626e9d7ad",
+      "AmplifyAppId": "diovwvheaz4zo"
+    }
+  }
+}
