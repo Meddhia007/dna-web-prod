@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Equipments</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .equipment-list {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .equipment-item {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .equipment-item h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .equipment-item p {
+            color: #666;
+        }
+        .equipment-item .actions button {
+            background-color: #dc3545;
+            margin-right: 10px;
+        }
+        .equipment-item .actions button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Manage Equipments</h1>
+        <form id="equipmentForm">
+            <div class="form-group">
+                <label for="equipmentName">Equipment Name:</label>
+                <input type="text" id="equipmentName" required>
+            </div>
+            <div class="form-group">
+                <label for="equipmentDescription">Equipment Description:</label>
+                <textarea id="equipmentDescription" rows="5" required></textarea>
+            </div>
+            <button type="submit">Add Equipment</button>
+        </form>
+
+        <div class="equipment-list">
+            <h2>Existing Equipments</h2>
+            <div id="equipmentsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const equipmentForm = document.getElementById('equipmentForm');
+        const equipmentsContainer = document.getElementById('equipmentsContainer');
+
+        let equipments = [];
+
+        // Load equipments from local storage
+        function loadEquipments() {
+            const storedEquipments = localStorage.getItem('equipments');
+            if (storedEquipments) {
+                equipments = JSON.parse(storedEquipments);
+                renderEquipments();
+            }
+        }
+
+        // Save equipments to local storage
+        function saveEquipments() {
+            localStorage.setItem('equipments', JSON.stringify(equipments));
+        }
+
+        // Render equipments to the DOM
+        function renderEquipments() {
+            equipmentsContainer.innerHTML = '';
+            equipments.forEach((equipment, index) => {
+                const equipmentItem = document.createElement('div');
+                equipmentItem.classList.add('equipment-item');
+                equipmentItem.innerHTML = `
+                    <h3>${equipment.name}</h3>
+                    <p>${equipment.description}</p>
+                    <div class="actions">
+                        <button onclick="editEquipment(${index})">Edit</button>
+                        <button onclick="deleteEquipment(${index})">Delete</button>
+                    </div>
+                `;
+                equipmentsContainer.appendChild(equipmentItem);
+            });
+        }
+
+        // Add a new equipment
+        equipmentForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('equipmentName').value;
+            const description = document.getElementById('equipmentDescription').value;
+            equipments.push({ name, description });
+            saveEquipments();
+            renderEquipments();
+            equipmentForm.reset();
+        });
+
+        // Edit an equipment
+        function editEquipment(index) {
+            const newName = prompt('Enter new equipment name:', equipments[index].name);
+            const newDescription = prompt('Enter new equipment description:', equipments[index].description);
+            if (newName !== null && newDescription !== null) {
+                equipments[index].name = newName;
+                equipments[index].description = newDescription;
+                saveEquipments();
+                renderEquipments();
+            }
+        }
+
+        // Delete an equipment
+        function deleteEquipment(index) {
+            if (confirm('Are you sure you want to delete this equipment?')) {
+                equipments.splice(index, 1);
+                saveEquipments();
+                renderEquipments();
+            }
+        }
+
+        // Initial load
+        loadEquipments();
+    </script>
+</body>
+</html>
