@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const teamData = await client.graphql({ query: listTeamMembers });
             const teamMembers = teamData.data.listTeamMembers.items;
             const teamContainer = document.getElementById('team-container');
-            if (teamContainer) {
+            if (teamContainer && teamMembers.length > 0) {
                 teamContainer.innerHTML = '';
                 teamMembers.forEach(member => {
                     const memberDiv = document.createElement('div');
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const servicesData = await client.graphql({ query: listServices });
             const services = servicesData.data.listServices.items;
             const servicesContainer = document.getElementById('services-container');
-            if (servicesContainer) {
+            if (servicesContainer && services.length > 0) {
                 servicesContainer.innerHTML = '';
                 services.forEach(service => {
                     const serviceDiv = document.createElement('div');
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const portfolioData = await client.graphql({ query: listPortfolioItems });
             const portfolioItems = portfolioData.data.listPortfolioItems.items;
             const portfolioContainer = document.querySelector('.portfolio-container');
-            if (portfolioContainer) {
+            if (portfolioContainer && portfolioItems.length > 0) {
                 portfolioContainer.innerHTML = '';
                 portfolioItems.forEach(item => {
                     const portfolioDiv = document.createElement('div');
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const equipmentData = await client.graphql({ query: listEquipments });
             const equipments = equipmentData.data.listEquipments.items;
             const equipmentContainer = document.getElementById('equipment-container');
-            if (equipmentContainer) {
+            if (equipmentContainer && equipments.length > 0) {
                 equipmentContainer.innerHTML = '';
                 equipments.forEach(equipment => {
                     const equipmentDiv = document.createElement('div');
