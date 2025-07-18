@@ -1,0 +1,27 @@
+{
+  "name": "dna-web",
+  "version": "1.0.0",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "esbuild script.js --bundle --outfile=dist/main.js --platform=browser --target=es2020"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Meddhia007/dna-web-prod.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Meddhia007/dna-web-prod/issues"
+  },
+  "homepage": "https://github.com/Meddhia007/dna-web-prod#readme",
+  "description": "",
+  "dependencies": {
+    "aws-amplify": "^6.15.3"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.6"
+  }
+}
