@@ -1,0 +1,28 @@
+type TeamMember @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  role: String
+  description: String
+  image: String
+}
+
+type Service @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  title: String!
+  description: String
+}
+
+type PortfolioItem @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  title: String!
+  category: String
+  image: String!
+}
+
+type Equipment @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  description: String
+  badge: String
+  image: String
+}

@@ -1,5 +1,5 @@
 {
-  "AppSyncApiName": "dnaweb",
+  "AppSyncApiName": "dnawebprod",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
   "DynamoDBEnableServerSideEncryption": false
 }
