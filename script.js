@@ -1,10 +1,13 @@
-import { Amplify, API } from 'aws-amplify';
+import { Amplify } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
 import awsExports from './src/aws-exports.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
 
     // Configure Amplify with the credentials from our module
     Amplify.configure(awsExports);
+
+    const client = generateClient();
 
     const listTeamMembers = /* GraphQL */ `
       query ListTeamMembers(
@@ -98,7 +101,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function fetchAndRenderData() {
         try {
             // Fetch Team Members
-            const teamData = await API.graphql({ query: listTeamMembers });
+            const teamData = await client.graphql({ query: listTeamMembers });
             const teamMembers = teamData.data.listTeamMembers.items;
             const teamContainer = document.getElementById('team-container');
             if (teamContainer) {
@@ -123,7 +126,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             // Fetch Services
-            const servicesData = await API.graphql({ query: listServices });
+            const servicesData = await client.graphql({ query: listServices });
             const services = servicesData.data.listServices.items;
             const servicesContainer = document.getElementById('services-container');
             if (servicesContainer) {
@@ -142,7 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             // Fetch Portfolio Items
-            const portfolioData = await API.graphql({ query: listPortfolioItems });
+            const portfolioData = await client.graphql({ query: listPortfolioItems });
             const portfolioItems = portfolioData.data.listPortfolioItems.items;
             const portfolioContainer = document.querySelector('.portfolio-container');
             if (portfolioContainer) {
@@ -167,7 +170,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             // Fetch Equipment
-            const equipmentData = await API.graphql({ query: listEquipments });
+            const equipmentData = await client.graphql({ query: listEquipments });
             const equipments = equipmentData.data.listEquipments.items;
             const equipmentContainer = document.getElementById('equipment-container');
             if (equipmentContainer) {
