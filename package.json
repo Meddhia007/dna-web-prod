@@ -4,7 +4,7 @@
   "main": "script.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild script.js --bundle --outfile=dist/main.js --platform=browser --target=es2020"
+    "build": "rm -rf dist && mkdir dist && esbuild script.js --bundle --outfile=dist/main.js --platform=browser --target=es2020 && cp index.html style.css dist/ && cp -r assets dist/"
   },
   "repository": {
     "type": "git",
