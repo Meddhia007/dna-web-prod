@@ -1,17 +1,12 @@
 import awsExports from './src/aws-exports.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    if (typeof window.aws_amplify === 'undefined') {
-        console.error('Amplify library not loaded.');
-        return;
-    }
-    if (typeof window.awsExports === 'undefined') {
-        console.error('aws-exports.js not loaded.');
-        return;
-    }
-
+    // The browser has loaded the HTML, and the Amplify library from the CDN should be available.
+    // We can now safely access it from the window object.
     const { Amplify, API } = window.aws_amplify;
-    Amplify.configure(window.awsExports);
+
+    // Configure Amplify with the credentials from our module
+    Amplify.configure(awsExports);
 
     const listTeamMembers = /* GraphQL */ `
       query ListTeamMembers(
@@ -28,8 +23,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             image
             createdAt
             updatedAt
+            __typename
           }
           nextToken
+          __typename
         }
       }
     `;
@@ -47,8 +44,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             description
             createdAt
             updatedAt
+            __typename
           }
           nextToken
+          __typename
         }
       }
     `;
@@ -59,11 +58,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         $limit: Int
         $nextToken: String
       ) {
-        listPortfolioItems(
-          filter: $filter
-          limit: $limit
-          nextToken: $nextToken
-        ) {
+        listPortfolioItems(filter: $filter, limit: $limit, nextToken: $nextToken) {
           items {
             id
             title
@@ -71,8 +66,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             image
             createdAt
             updatedAt
+            __typename
           }
           nextToken
+          __typename
         }
       }
     `;
@@ -92,115 +89,140 @@ document.addEventListener('DOMContentLoaded', async () => {
             image
             createdAt
             updatedAt
+            __typename
           }
           nextToken
+          __typename
         }
       }
     `;
 
     async function fetchAndRenderData() {
         try {
-            const [teamData, serviceData, portfolioData, equipmentData] = await Promise.all([
-                API.graphql({ query: listTeamMembers }),
-                API.graphql({ query: listServices }),
-                API.graphql({ query: listPortfolioItems }),
-                API.graphql({ query: listEquipments })
-            ]);
+            // Fetch Team Members
+            const teamData = await API.graphql({ query: listTeamMembers });
+            const teamMembers = teamData.data.listTeamMembers.items;
+            const teamContainer = document.getElementById('team-container');
+            if (teamContainer) {
+                teamContainer.innerHTML = '';
+                teamMembers.forEach(member => {
+                    const memberDiv = document.createElement('div');
+                    memberDiv.className = 'col-lg-4 col-md-6 d-flex align-items-stretch';
+                    memberDiv.innerHTML = `
+                        <div class="member">
+                            <div class="member-img">
+                                <img src="${member.image || 'assets/images/team-placeholder-4.png'}" class="img-fluid" alt="${member.name}">
+                            </div>
+                            <div class="member-info">
+                                <h4>${member.name}</h4>
+                                <span>${member.role}</span>
+                                <p>${member.description}</p>
+                            </div>
+                        </div>
+                    `;
+                    teamContainer.appendChild(memberDiv);
+                });
+            }
 
-            renderTeam(teamData.data.listTeamMembers.items);
-            renderServices(serviceData.data.listServices.items);
-            renderPortfolio(portfolioData.data.listPortfolioItems.items);
-            renderEquipment(equipmentData.data.listEquipments.items);
+            // Fetch Services
+            const servicesData = await API.graphql({ query: listServices });
+            const services = servicesData.data.listServices.items;
+            const servicesContainer = document.getElementById('services-container');
+            if (servicesContainer) {
+                servicesContainer.innerHTML = '';
+                services.forEach(service => {
+                    const serviceDiv = document.createElement('div');
+                    serviceDiv.className = 'col-md-6 col-lg-3 d-flex align-items-stretch mb-5 mb-lg-0';
+                    serviceDiv.innerHTML = `
+                        <div class="icon-box">
+                            <h4 class="title"><a href="">${service.title}</a></h4>
+                            <p class="description">${service.description}</p>
+                        </div>
+                    `;
+                    servicesContainer.appendChild(serviceDiv);
+                });
+            }
+
+            // Fetch Portfolio Items
+            const portfolioData = await API.graphql({ query: listPortfolioItems });
+            const portfolioItems = portfolioData.data.listPortfolioItems.items;
+            const portfolioContainer = document.querySelector('.portfolio-container');
+            if (portfolioContainer) {
+                portfolioContainer.innerHTML = '';
+                portfolioItems.forEach(item => {
+                    const portfolioDiv = document.createElement('div');
+                    portfolioDiv.className = `col-lg-4 col-md-6 portfolio-item filter-${item.category.toLowerCase()}`;
+                    portfolioDiv.innerHTML = `
+                        <div class="portfolio-wrap">
+                            <img src="${item.image}" class="img-fluid" alt="${item.title}">
+                            <div class="portfolio-info">
+                                <h4>${item.title}</h4>
+                                <p>${item.category}</p>
+                                <div class="portfolio-links">
+                                    <a href="${item.image}" data-gallery="portfolioGallery" class="portfolio-lightbox" title="${item.title}"><i class="bx bx-plus"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    portfolioContainer.appendChild(portfolioDiv);
+                });
+            }
+
+            // Fetch Equipment
+            const equipmentData = await API.graphql({ query: listEquipments });
+            const equipments = equipmentData.data.listEquipments.items;
+            const equipmentContainer = document.getElementById('equipment-container');
+            if (equipmentContainer) {
+                equipmentContainer.innerHTML = '';
+                equipments.forEach(equipment => {
+                    const equipmentDiv = document.createElement('div');
+                    equipmentDiv.className = 'col-lg-3 col-md-4 col-6';
+                    equipmentDiv.innerHTML = `
+                        <div class="client-logo">
+                            <img src="${equipment.image}" class="img-fluid" alt="${equipment.name}">
+                            <span class="badge bg-secondary">${equipment.badge}</span>
+                        </div>
+                    `;
+                    equipmentContainer.appendChild(equipmentDiv);
+                });
+            }
+
         } catch (error) {
             console.error('Error fetching data:', error);
         }
     }
 
-    function renderTeam(members) {
-        const container = document.getElementById('team-members-container');
-        if (!container) return;
-        container.innerHTML = members.map(member => `
-            <div class="team-member-card">
-                <div class="team-member-photo-wrapper">
-                    <img src="${member.image || 'assets/images/team-placeholder-1.png'}" alt="${member.name}" class="team-member-photo">
-                    <div class="team-member-overlay"><p>${member.description || ''}</p></div>
-                </div>
-                <div class="team-member-info">
-                    <h4 class="team-member-name">${member.name}</h4>
-                    <p class="team-member-role">${member.role}</p>
-                </div>
-            </div>
-        `).join('');
-    }
+    // Fetch data and then initialize third-party libraries
+    await fetchAndRenderData();
 
-    function renderServices(services) {
-        const container = document.querySelector('.services-grid-v2');
-        if (!container) return;
-        container.innerHTML = services.map(service => `
-            <div class="service-card-v2">
-                <div class="service-icon-v2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                </div>
-                <h4>${service.title}</h4>
-                <p>${service.description}</p>
-            </div>
-        `).join('');
-    }
-
-    function renderPortfolio(items) {
-        const container = document.querySelector('.portfolio-grid');
-        if (!container) return;
-        container.innerHTML = items.map(item => `
-            <div class="portfolio-item ${item.category}">
-                <img src="${item.image}" alt="${item.title}">
-                <div class="portfolio-info">
-                    <h3>${item.title}</h3>
-                    <p>${item.category}</p>
-                </div>
-            </div>
-        `).join('');
-        // Re-initialize portfolio filtering
-        initializePortfolioFilter();
-    }
-
-    function renderEquipment(equipments) {
-        const container = document.querySelector('.equipment-showcase');
-        if (!container) return;
-        container.innerHTML = equipments.map(equipment => `
-            <div class="equipment-card-main">
-                 <div class="card-header">
-                     <img src="${equipment.image}" alt="${equipment.name}" class="card-image">
-                     <div class="card-title">
-                         <h3>${equipment.name}</h3>
-                         <p>${equipment.description}</p>
-                     </div>
-                     <div class="card-badge">${equipment.badge}</div>
-                 </div>
-            </div>
-        `).join('');
-    }
-
-    // --- HAMBURGER MENU LOGIC ---
-    const hamburger = document.getElementById('hamburger-menu');
-    const navLinksContainer = document.querySelector('.nav-links');
-
-    hamburger.addEventListener('click', () => {
-        navLinksContainer.classList.toggle('active');
-        hamburger.classList.toggle('active');
-    });
-
-    // Close mobile menu when a link is clicked
-    document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', () => {
-            if (navLinksContainer.classList.contains('active')) {
-                navLinksContainer.classList.remove('active');
-                hamburger.classList.remove('active');
-            }
+    // --- INITIALIZE THIRD-PARTY LIBRARIES ---
+    if (window.Isotope) {
+        const portfolioIsotope = new Isotope('.portfolio-container', {
+            itemSelector: '.portfolio-item',
+            layoutMode: 'fitRows'
         });
-    });
 
-    const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+        document.querySelectorAll('#portfolio-flters li').forEach(filter => {
+            filter.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('#portfolio-flters li').forEach(el => el.classList.remove('filter-active'));
+                this.classList.add('filter-active');
+                portfolioIsotope.arrange({
+                    filter: this.getAttribute('data-filter')
+                });
+            });
+        });
+    }
+
+    if (window.GLightbox) {
+        new GLightbox({
+            selector: '.portfolio-lightbox'
+        });
+    }
+
+    // All other page logic that was outside the listener before
     const sections = document.querySelectorAll('section[data-section]');
+    const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
 
     // --- COUNTER ANIMATION LOGIC ---
     const animateCounter = (element) => {
@@ -227,13 +249,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const navLink = document.querySelector(`.nav-links a[href="#${id}"]`);
 
             if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
                 if (navLink) {
                     navLinks.forEach(link => link.classList.remove('active'));
                     navLink.classList.add('active');
                 }
-            } else {
-                entry.target.classList.remove('visible');
             }
         });
     }, {
@@ -247,8 +266,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const animationObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-
                 const counters = entry.target.querySelectorAll('.stat-number');
                 counters.forEach(counter => {
                     if (!counter.dataset.animated) {
@@ -256,7 +273,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         counter.dataset.animated = 'true';
                     }
                 });
-                
                 observer.unobserve(entry.target);
             }
         });
@@ -265,46 +281,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.querySelectorAll('.animate-on-scroll').forEach(el => {
         animationObserver.observe(el);
     });
-
-    // --- PORTFOLIO FILTERING ---
-    function initializePortfolioFilter() {
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        const portfolioItems = document.querySelectorAll('.portfolio-item');
-
-        if (filterButtons.length > 0) {
-            filterButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                    const filter = button.getAttribute('data-filter');
-
-                    portfolioItems.forEach(item => {
-                        item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                        item.style.opacity = '0';
-                        item.style.transform = 'scale(0.9)';
-                        item.style.display = 'none';
-                    });
-
-                    setTimeout(() => {
-                        const visibleItems = [];
-                        portfolioItems.forEach(item => {
-                            if (filter === 'all' || item.classList.contains(filter)) {
-                                item.style.display = 'block';
-                                visibleItems.push(item);
-                            }
-                        });
-
-                        visibleItems.forEach((item, index) => {
-                            setTimeout(() => {
-                                item.style.opacity = '1';
-                                item.style.transform = 'scale(1)';
-                            }, index * 80);
-                        });
-                    }, 300);
-                });
-            });
-        }
-    }
-
-    fetchAndRenderData();
 });
