@@ -12,10 +12,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const listTeamMembers = /* GraphQL */ `
       query ListTeamMembers(
         $filter: ModelTeamMemberFilterInput
-        $limit: Int
         $nextToken: String
       ) {
-        listTeamMembers(filter: $filter, limit: $limit, nextToken: $nextToken) {
+        listTeamMembers(filter: $filter, nextToken: $nextToken) {
           items {
             id
             name
@@ -35,10 +34,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const listServices = /* GraphQL */ `
       query ListServices(
         $filter: ModelServiceFilterInput
-        $limit: Int
         $nextToken: String
       ) {
-        listServices(filter: $filter, limit: $limit, nextToken: $nextToken) {
+        listServices(filter: $filter, nextToken: $nextToken) {
           items {
             id
             title
@@ -56,10 +54,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const listPortfolioItems = /* GraphQL */ `
       query ListPortfolioItems(
         $filter: ModelPortfolioItemFilterInput
-        $limit: Int
         $nextToken: String
       ) {
-        listPortfolioItems(filter: $filter, limit: $limit, nextToken: $nextToken) {
+        listPortfolioItems(filter: $filter, nextToken: $nextToken) {
           items {
             id
             title
@@ -78,10 +75,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const listEquipments = /* GraphQL */ `
       query ListEquipments(
         $filter: ModelEquipmentFilterInput
-        $limit: Int
         $nextToken: String
       ) {
-        listEquipments(filter: $filter, limit: $limit, nextToken: $nextToken) {
+        listEquipments(filter: $filter, nextToken: $nextToken) {
           items {
             id
             name
@@ -112,7 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     memberDiv.innerHTML = `
                         <div class="member">
                             <div class="member-img">
-                                <img src="${member.image || 'images/team-placeholder.png'}" class="img-fluid" alt="${member.name}">
+                                <img src="${member.image || 'assets/images/team-placeholder-4.png'}" class="img-fluid" alt="${member.name}">
                             </div>
                             <div class="member-info">
                                 <h4>${member.name}</h4>
