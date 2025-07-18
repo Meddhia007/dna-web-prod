@@ -1,3 +1,5 @@
+import awsExports from './src/aws-exports.js';
+
 document.addEventListener('DOMContentLoaded', async () => {
     if (typeof window.aws_amplify === 'undefined') {
         console.error('Amplify library not loaded.');
