@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     memberDiv.innerHTML = `
                         <div class="member">
                             <div class="member-img">
-                                <img src="${member.image || 'assets/images/team-placeholder-4.png'}" class="img-fluid" alt="${member.name}">
+                                <img src="${member.image || 'images/team-placeholder.png'}" class="img-fluid" alt="${member.name}">
                             </div>
                             <div class="member-info">
                                 <h4>${member.name}</h4>
@@ -155,12 +155,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     portfolioDiv.className = `col-lg-4 col-md-6 portfolio-item filter-${item.category.toLowerCase()}`;
                     portfolioDiv.innerHTML = `
                         <div class="portfolio-wrap">
-                            <img src="${item.image}" class="img-fluid" alt="${item.title}">
+                            <img src="${item.image.replace('assets/', '')}" class="img-fluid" alt="${item.title}">
                             <div class="portfolio-info">
                                 <h4>${item.title}</h4>
                                 <p>${item.category}</p>
                                 <div class="portfolio-links">
-                                    <a href="${item.image}" data-gallery="portfolioGallery" class="portfolio-lightbox" title="${item.title}"><i class="bx bx-plus"></i></a>
+                                    <a href="${item.image.replace('assets/', '')}" data-gallery="portfolioGallery" class="portfolio-lightbox" title="${item.title}"><i class="bx bx-plus"></i></a>
                                 </div>
                             </div>
                         </div>
@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     equipmentDiv.className = 'col-lg-3 col-md-4 col-6';
                     equipmentDiv.innerHTML = `
                         <div class="client-logo">
-                            <img src="${equipment.image}" class="img-fluid" alt="${equipment.name}">
+                            <img src="${equipment.image.replace('assets/', '')}" class="img-fluid" alt="${equipment.name}">
                             <span class="badge bg-secondary">${equipment.badge}</span>
                         </div>
                     `;
