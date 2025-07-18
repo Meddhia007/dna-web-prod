@@ -1,6 +1,7 @@
 import awsExports from './src/aws-exports.js';
 
-document.addEventListener('DOMContentLoaded', async () => {
+// This function contains the core logic of your application.
+async function initializeApp() {
     // The browser has loaded the HTML, and the Amplify library from the CDN should be available.
     // We can now safely access it from the window object.
     const { Amplify, API } = window.aws_amplify;
@@ -281,4 +282,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.querySelectorAll('.animate-on-scroll').forEach(el => {
         animationObserver.observe(el);
     });
+}
+
+// This function will wait until the Amplify library is loaded from the CDN.
+document.addEventListener('DOMContentLoaded', () => {
+    const checkAmplify = setInterval(() => {
+        if (window.aws_amplify) {
+            clearInterval(checkAmplify);
+            initializeApp();
+        }
+    }, 100); // Check every 100ms
 });
