@@ -190,6 +190,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         } catch (error) {
             console.error('Error fetching data:', error);
+            if (error.errors) {
+                console.error('GraphQL Errors:', error.errors);
+            }
         }
     }
 
